@@ -4,6 +4,11 @@ This injector is primarily designed for Gorilla Tag but can be used with any Mon
 It is fully open-source and operates using SMI, an injection library.
 The entire tool is implemented in C# as a console application, ensuring a minimalistic and efficient design.
 
+# Credits
+credits towards the following, these guys made the entire injection library that i used in this and made this possible for me.
+https://github.com/wh0am15533/SharpMonoInjector
+https://github.com/warbler/SharpMonoInjector
+
 # Tutorial
 1. get your DLL that supported
 2. drag the DLL into GInjector.exe
