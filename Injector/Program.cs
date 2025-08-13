@@ -1,6 +1,5 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.Tracing;
-using SharpMonoInjector;
+﻿using SharpMonoInjector;
+using System.Diagnostics;
 public class Program
 {
     public static void Main(string[] args)
@@ -32,22 +31,37 @@ public class Program
             }
 
             byte[] dllBytes = File.ReadAllBytes(dllPath);
-            PrintLine("G-Injector - made by ventern", ConsoleColor.Red);
-            PrintLine("https://discord.gg/D9fRUyt63T", ConsoleColor.Red);
+            PrintLine("G-Injector - made by ventern", ConsoleColor.Blue, 5);
+            PrintLine("https://discord.gg/D9fRUyt63T", ConsoleColor.Blue, 5);
+            /*
             while (true)
             {
-                int monoProcessPID = GetMonoProcessPID();
-                if (monoProcessPID != 0)
+                try
                 {
-                    Inject(dllBytes, monoProcessPID);
+                    int monoProcessPID = GetMonoProcessPID();
+                    if (monoProcessPID != 0)
+                    {
+                        Inject(dllBytes, monoProcessPID);
+                        break;
+                    }
+
+                    PrintLine("Mono process not found. Checking again in 15 seconds...", ConsoleColor.Yellow);
+                    Thread.Sleep(15000);
+                }
+                catch { }
+            }
+            */ // auto route to mono apps [DISABLED]
+            while (true)
+            {
+                int ProcessPID = GetProcessPIDByName("Gorilla Tag");
+                if (ProcessPID != 0)
+                {
+                    Thread.Sleep(5000);
+                    Inject(dllBytes, ProcessPID);
                     break;
                 }
-
-                PrintLine("Mono process not found. Checking again in 15 seconds...", ConsoleColor.Yellow);
                 Thread.Sleep(15000);
             }
-
-            PauseExit();
         }
         catch (Exception ex)
         {
@@ -61,16 +75,25 @@ public class Program
         try
         {
             Injector injector = new Injector(targetProcessID);
-            injector.Inject(dllBytes, "Loader", "Loader", "Load");
-            injector.Dispose();
+            if (injector != null)
+            {
+                IntPtr injectionCode = injector.Inject(dllBytes, "Loader", "Loader", "Load");
+                injector.Dispose();
+                if (injectionCode != 0)
+                {
+                    PrintLine($"Injection Complete : {injectionCode}", ConsoleColor.Green, 5);
+                    CountdownExit(3);
+                }
+            }
+
         }
         catch (Exception ex)
         {
-            PrintLine($"Injection failed: {ex.Message}", ConsoleColor.Red);
+            PrintLine($"Injection failed | Message:{ex.Message} Expection: {ex.InnerException}", ConsoleColor.Red);
         }
     }
 
-    internal static int GetMonoProcessPID()
+    private static int GetMonoProcessPID()
     {
         try
         {
@@ -83,6 +106,8 @@ public class Program
                         PrintLine($"Mono process found: {process.ProcessName}, PID: {process.Id}", ConsoleColor.Green);
                         return process.Id;
                     }
+                    PrintLine($"No mono process found. Checking again in 15 seconds...", ConsoleColor.Yellow);
+                    return 0;
                 }
                 catch { }
             }
@@ -109,7 +134,7 @@ public class Program
         }
     }
 
-    private static void PrintLine(string message, ConsoleColor color, int typingDelay = 5, bool noline = false)
+    private static void PrintLine(string message, ConsoleColor color, int typingDelay = 3, bool noline = false)
     {
         try
         {
@@ -151,12 +176,35 @@ public class Program
     {
         try
         {
+            PrintLine("", ConsoleColor.Red);
             PrintLine("Press any key to close...", ConsoleColor.Red, 10);
             Console.ReadKey();
         }
         catch (Exception ex)
         {
             PrintLine($"Error while pausing for exit: {ex.Message}", ConsoleColor.Red);
+        }
+    }
+
+    private static int GetProcessPIDByName(string processName)
+    {
+        try
+        {
+            foreach (var process in Process.GetProcesses())
+            {
+                if (process.ProcessName.ToLower() == processName.ToLower())
+                {
+                    PrintLine($"Found process with name '{processName}' found. PID: {process.Id}", ConsoleColor.Green);
+                    return process.Id;
+                }
+            }
+            PrintLine($"No process with name '{processName}' found. Checking again in 15 seconds...", ConsoleColor.Yellow);
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            PrintLine($"An error occurred: {ex.Message}", ConsoleColor.Yellow);
+            return 0;
         }
     }
 }
