@@ -7,7 +7,7 @@ public class Program
     {
         try
         {
-            Console.Title = "Injector";
+            Console.Title = "G-Injector";
             if (!IsRunAsAdministrator())
             {
                 PrintLine("Please run this program as Administrator.", ConsoleColor.Red);
@@ -32,7 +32,8 @@ public class Program
             }
 
             byte[] dllBytes = File.ReadAllBytes(dllPath);
-
+            PrintLine("G-Injector - made by ventern", ConsoleColor.Red);
+            PrintLine("https://discord.gg/D9fRUyt63T", ConsoleColor.Red);
             while (true)
             {
                 int monoProcessPID = GetMonoProcessPID();
