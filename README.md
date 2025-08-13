@@ -18,6 +18,9 @@ https://github.com/warbler/SharpMonoInjector
 # Compatabilty (DEVS)
 to make your dll support all you have to do is add our premade class to your project and tweak it just a tiny bit to target your entry point
 
+https://github.com/Ventern-gtr/G-Injector/blob/master/InjectionTest.dll
+example
+
 ```csharp 
 using InjectionTest;
 using System;
